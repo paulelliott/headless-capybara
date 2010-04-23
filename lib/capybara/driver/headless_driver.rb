@@ -1,4 +1,4 @@
-class Capybara::Driver::Harmony < Capybara::Driver::Base
+class Capybara::Driver::Headless < Capybara::Driver::Base
 
   class Node < Capybara::Node
 
