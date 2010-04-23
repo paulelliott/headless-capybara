@@ -2,7 +2,7 @@ require File.expand_path('../spec_helper', File.dirname(__FILE__))
 
 describe Capybara::Driver::Headless do
   before do
-    @session = Capybara::Session.new(:envjs, TestApp)
+    @session = Capybara::Session.new(:headless, TestApp)
   end
 
   describe '#driver' do
