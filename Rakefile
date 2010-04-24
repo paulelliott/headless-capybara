@@ -4,18 +4,18 @@ require 'rake'
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
-    gem.name = "the-perfect-gem"
+    gem.name = "headless-capybara"
     gem.summary = "Javascript-enabled Capybara driver with no head!"
     gem.description = "Javascript-enabled Capybara driver with no head!"
     gem.email = "paul@hashrocket.com"
-    gem.homepage = "http://github.com/paulelliott/capybara-headless"
+    gem.homepage = "http://github.com/paulelliott/headless-capybara"
     gem.authors = ["Paul Elliott","Robert Pitts"]
 
-    gem.add_dependency "harmony"
+    gem.add_dependency "harmony", '0.5.5'
     gem.add_dependency "capybara", '0.3.7'
 
-    gem.add_development_dependency "capybara", '0.3.7'
-    gem.add_development_dependency "rspec"
+    gem.add_development_dependency "sinatra"
+    gem.add_development_dependency "rspec", '1.3.0'
   end
 rescue LoadError
   puts "Jeweler not available. Install it with: gem install jeweler"

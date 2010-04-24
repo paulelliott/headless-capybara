@@ -1,1 +1,1 @@
-rvm gemset use capybara-headless
+rvm gemset use headless-capybara
