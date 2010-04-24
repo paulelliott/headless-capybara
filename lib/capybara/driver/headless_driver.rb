@@ -62,6 +62,10 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
     html.xpath(selector).map { |node| Node.new(self, node) }
   end
 
+  def evaluate_script(script)
+    page.x(script)
+  end
+
 private
 
   def url(path)
