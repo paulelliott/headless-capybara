@@ -49,6 +49,7 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
   def body
     @body ||= page.to_html
   end
+  alias :source :body
 
   def html
     @html ||= Nokogiri::HTML(body)
