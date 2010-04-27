@@ -2,7 +2,8 @@ require 'spec_helper'
 
 describe Capybara::Session do
   context 'with a headless driver' do
-    before do
+
+    before(:all) do
       @session = Capybara::Session.new(:headless, TestApp)
     end
 
@@ -20,6 +21,5 @@ describe Capybara::Session do
 
     it_should_behave_like "session"
     it_should_behave_like "session with javascript support"
-    it_should_behave_like "session with headers support"
   end
 end
