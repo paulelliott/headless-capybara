@@ -51,7 +51,6 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
     @app = app
     @rack_server = Capybara::Server.new(@app)
     @rack_server.boot if Capybara.run_server
-    window
   end
 
   def visit(path)
