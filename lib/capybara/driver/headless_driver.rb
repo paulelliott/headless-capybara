@@ -1,34 +1,50 @@
 require 'harmony'
-require 'nokogiri'
 
 class Capybara::Driver::Headless < Capybara::Driver::Base
+
+  JQUERY = File.open(File.expand_path(File.join('lib','capybara','jquery-1.4.2.min.js'))).read
 
   class Node < Capybara::Node
 
     def text
-      node.text
+      driver.page.x("CHD.queried_objects[#{node}].innerText")
     end
 
     def [](name)
-      node[name.to_s]
+      name = 'className' if name.to_s == 'class'
+      driver.page.x("CHD.queried_objects[#{node}].#{name.to_s}")
     end
 
     def set(value)
-      node['value'] = value
+      driver.page.x("CHD.queried_objects[#{node}].value = \"#{value}\"")
     end
 
     def tag_name
-      node.node_name
+      driver.page.x("CHD.queried_objects[#{node}].tagName").downcase
     end
 
     def visible?
-      node.xpath("./ancestor-or-self::*[contains(@style, 'display:none') or contains(@style, 'display: none')]").size == 0
+      driver.page.x(%<
+        var node = $HC(CHD.queried_objects[#{node}]);
+        node.is(':visible') && node.parents(':hidden').length == 0
+      >)
+    end
+
+    def drag_to(element)
+      driver.page.x(%<
+        CHD.queried_objects[#{node}].onmousedown();
+        CHD.queried_objects[#{element.node}].onmousemove();
+        CHD.queried_objects[#{element.node}].onmouseup();
+      >)
     end
 
   private
 
     def all_unfiltered(locator)
-      driver.find(node.xpath(locator).map { |n| n.path }.join(' | '))
+      require 'ruby-debug'; Debugger.start; Debugger.settings[:autoeval] = 1; Debugger.settings[:autolist] = 1; debugger
+      driver.page.x(
+        "CHD.find_by_xpath('#{locator}', CHD.queried_objects[#{node}])"
+      ).split(',').map{ |key| Node.new(self, key) }
     end
 
   end
@@ -44,26 +60,44 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
   def visit(path)
     @html = @body = nil
     @page = Harmony::Page.fetch(url(path))
+    page.x(%<
+      var CHD = {
+        object_count: 0,
+        queried_objects: {},
+        find_by_xpath: function(selector, context) {
+          if (context == null) { context = document; }
+          var response = [];
+          var q = document.evaluate(selector, context, null, XPathResult.ANY_TYPE, null)
+          var obj = q.iterateNext();
+          while (obj) {
+            response.push(CHD.object_count);
+            CHD.queried_objects[CHD.object_count] = obj;
+            CHD.object_count += 1;
+            obj = q.iterateNext();
+          }
+          return response.join(',');
+        }
+      };
+    >)
+    page.x(JQUERY)
   end
 
   def body
     @body ||= page.to_html
   end
   alias :source :body
-
-  def html
-    @html ||= Nokogiri::HTML(body)
-  end
+  alias :html :body
 
   def current_url
     page.window.location.to_s
   end
 
   def find(selector)
-    html.xpath(selector).map { |node| Node.new(self, node) }
+    page.x("CHD.find_by_xpath('#{selector}')").split(',').map{ |key| Node.new(self, key) }
   end
 
   def evaluate_script(script)
+    @html = @body = nil
     page.x(script)
   end
 
@@ -71,27 +105,6 @@ private
 
   def url(path)
     rack_server.url(path)
-  end
-
-  ###OLD IMPLEMENTATION
-  def click(selector)
-    page.xw("$('#{selector}').click();")
-  end
-
-  def element(selector)
-    page.x("$('#{selector}').text();")
-  end
-
-  private
-
-  def ajax_setup(page)
-    page.x %<
-      $.ajaxSetup({
-        beforeSend: function(xhr) {
-          xhr.open(this.type, 'http://localhost:3001' + this.url, this.async);
-        }
-      });
-    >
   end
 
 end
