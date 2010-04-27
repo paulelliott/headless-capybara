@@ -1,38 +1,37 @@
-require 'harmony'
+require 'johnson/tracemonkey'
+require 'envjs/runtime'
 
 class Capybara::Driver::Headless < Capybara::Driver::Base
-
-  JQUERY = File.open(File.expand_path(File.join('lib','capybara','jquery-1.4.2.min.js'))).read
 
   class Node < Capybara::Node
 
     def text
-      driver.page.x(%<CHD.queried_objects[#{node}].innerText>)
+      driver.evaluate_script(%<CHD.queried_objects[#{node}].innerText>)
     end
 
     def [](name)
       name = name.to_s
       name = 'className' if name == 'class'
-      driver.page.x(%<CHD.queried_objects[#{node}].#{name}>)
+      driver.evaluate_script(%<CHD.queried_objects[#{node}].#{name}>)
     end
 
     def set(value)
-      driver.page.x(%<CHD.queried_objects[#{node}].value = "#{value}">)
+      driver.evaluate_script(%<CHD.queried_objects[#{node}].value = "#{value}">)
     end
 
     def tag_name
-      driver.page.x(%<CHD.queried_objects[#{node}].tagName>).downcase
+      driver.evaluate_script(%<CHD.queried_objects[#{node}].tagName>).downcase
     end
 
     def visible?
-      driver.page.x(%<
+      driver.evaluate_script(%<
         var node = $HC(CHD.queried_objects[#{node}]);
         node.is(':visible') && node.parents(':hidden').length == 0
       >)
     end
 
     def drag_to(element)
-      driver.page.x(%<
+      driver.evaluate_script(%<
         CHD.queried_objects[#{node}].onmousedown();
         CHD.queried_objects[#{element.node}].onmousemove();
         CHD.queried_objects[#{element.node}].onmouseup();
@@ -42,7 +41,7 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
   private
 
     def all_unfiltered(locator)
-      driver.page.x(%<
+      driver.evaluate_script(%<
         CHD.find_by_xpath('#{locator}', CHD.queried_objects[#{node}])
       >).split(',').map{ |key| Node.new(self, key) }
     end
@@ -55,12 +54,12 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
     @app = app
     @rack_server = Capybara::Server.new(@app)
     @rack_server.boot if Capybara.run_server
+    window
   end
 
   def visit(path)
-    clear_memoized
-    @page = Harmony::Page.fetch(url(path))
-    page.x(%<
+    window.location = rack_url(path)
+    evaluate_script(%<
       var CHD = {
         object_count: 0,
         queried_objects: {},
@@ -79,36 +78,39 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
         }
       };
     >)
-    page.x(JQUERY)
+    evaluate_script(JQUERY)
   end
 
   def body
-    @body ||= page.to_html
+    window.document.innerHTML
   end
   alias :source :body
   alias :html :body
 
   def current_url
-    page.window.location.to_s
+    window.location.to_s
   end
 
   def find(selector)
-    page.x(%<CHD.find_by_xpath('#{selector}')>).split(',').map{ |key| Node.new(self, key) }
+    evaluate_script(%<CHD.find_by_xpath('#{selector}')>).split(',').map{ |key| Node.new(self, key) }
   end
 
   def evaluate_script(script)
-    clear_memoized
-    page.x(script)
+    window.evaluate(script)
   end
 
-private
+  private
 
-  def url(path)
+  JQUERY = File.open(File.expand_path(File.join('lib','capybara','jquery-1.4.2.min.js'))).read
+  BASE_RUNTIME = Johnson::Runtime.new
+  BASE_RUNTIME.extend(Envjs::Runtime)
+
+  def window
+    @window ||= BASE_RUNTIME.evaluate("window.open('about:blank')")
+  end
+
+  def rack_url(path)
     rack_server.url(path)
-  end
-
-  def clear_memoized
-    @body = nil
   end
 
 end
