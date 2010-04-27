@@ -86,7 +86,7 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
 
   private
 
-  BASE_RUNTIME = Johnson::Runtime.new
+  BASE_RUNTIME = Johnson::Runtime.new :size => Integer(ENV["JOHNSON_HEAP_SIZE"] || 0x4000000)
   BASE_RUNTIME.extend(Envjs::Runtime)
 
   def window
