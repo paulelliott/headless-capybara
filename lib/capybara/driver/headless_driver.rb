@@ -73,11 +73,11 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
 
   def find(selector, context = window.document)
     elements = window.document.evaluate(selector, context, nil, window['XPathResult'].ANY_TYPE, nil)
-    nodes = []
-    while element = elements.iterateNext do
-      nodes << Node.new(self, element)
+    [].tap do |nodes|
+      while element = elements.iterateNext do
+        nodes << Node.new(self, element)
+      end
     end
-    nodes
   end
 
   def evaluate_script(script)
