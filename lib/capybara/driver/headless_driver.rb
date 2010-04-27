@@ -58,7 +58,7 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
   end
 
   def visit(path)
-    @html = @body = nil
+    clear_memoized
     @page = Harmony::Page.fetch(url(path))
     page.x(%<
       var CHD = {
@@ -97,7 +97,7 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
   end
 
   def evaluate_script(script)
-    @html = @body = nil
+    clear_memoized
     page.x(script)
   end
 
@@ -105,6 +105,10 @@ private
 
   def url(path)
     rack_server.url(path)
+  end
+
+  def clear_memoized
+    @body = nil
   end
 
 end
