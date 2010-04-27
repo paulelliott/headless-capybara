@@ -56,7 +56,7 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
   end
 
   def current_url
-    page.window.location
+    page.window.location.to_s
   end
 
   def find(selector)
