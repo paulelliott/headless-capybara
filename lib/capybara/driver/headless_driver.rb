@@ -33,6 +33,10 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
       element.node.onmouseup
     end
 
+    def click
+      node.onclick
+    end
+
   private
 
     def all_unfiltered(locator)
