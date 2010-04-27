@@ -7,20 +7,21 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
   class Node < Capybara::Node
 
     def text
-      driver.page.x("CHD.queried_objects[#{node}].innerText")
+      driver.page.x(%<CHD.queried_objects[#{node}].innerText>)
     end
 
     def [](name)
-      name = 'className' if name.to_s == 'class'
-      driver.page.x("CHD.queried_objects[#{node}].#{name.to_s}")
+      name = name.to_s
+      name = 'className' if name == 'class'
+      driver.page.x(%<CHD.queried_objects[#{node}].#{name}>)
     end
 
     def set(value)
-      driver.page.x("CHD.queried_objects[#{node}].value = \"#{value}\"")
+      driver.page.x(%<CHD.queried_objects[#{node}].value = "#{value}">)
     end
 
     def tag_name
-      driver.page.x("CHD.queried_objects[#{node}].tagName").downcase
+      driver.page.x(%<CHD.queried_objects[#{node}].tagName>).downcase
     end
 
     def visible?
@@ -41,10 +42,9 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
   private
 
     def all_unfiltered(locator)
-      require 'ruby-debug'; Debugger.start; Debugger.settings[:autoeval] = 1; Debugger.settings[:autolist] = 1; debugger
-      driver.page.x(
-        "CHD.find_by_xpath('#{locator}', CHD.queried_objects[#{node}])"
-      ).split(',').map{ |key| Node.new(self, key) }
+      driver.page.x(%<
+        CHD.find_by_xpath('#{locator}', CHD.queried_objects[#{node}])
+      >).split(',').map{ |key| Node.new(self, key) }
     end
 
   end
@@ -93,7 +93,7 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
   end
 
   def find(selector)
-    page.x("CHD.find_by_xpath('#{selector}')").split(',').map{ |key| Node.new(self, key) }
+    page.x(%<CHD.find_by_xpath('#{selector}')>).split(',').map{ |key| Node.new(self, key) }
   end
 
   def evaluate_script(script)
