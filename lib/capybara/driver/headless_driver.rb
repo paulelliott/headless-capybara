@@ -18,6 +18,8 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
     def set(value)
       if node['type'] == 'checkbox'
         node['checked'] = value ? 'checked' : ''
+      elsif tag_name == 'textarea'
+        node.innerHTML = value
       else
         node.value = value || ''
       end
