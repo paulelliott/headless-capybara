@@ -34,19 +34,29 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
     end
 
     def drag_to(element)
-      node.onmousedown
-      element.node.onmousemove
-      element.node.onmouseup
+      trigger(:mousedown)
+      element.trigger(:mousemove)
+      element.trigger(:mouseup)
     end
 
     def click
-      node.onclick
+      trigger(:click)
     end
 
-  private
+    def trigger(event)
+      node.dispatchEvent create_event(event)
+    end
+
+    private
 
     def all_unfiltered(locator)
       driver.find(locator, node)
+    end
+
+    def create_event(event)
+      driver.document.createEvent('MouseEvent').tap do |e|
+        e.initEvent(event.to_s, true, true)
+      end
     end
 
   end
@@ -84,6 +94,10 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
 
   def evaluate_script(script)
     window.evaluate(script)
+  end
+
+  def document
+    window.document
   end
 
   private
