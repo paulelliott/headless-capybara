@@ -16,8 +16,8 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
     end
 
     def set(value)
-      if node['type'] == 'checkbox'
-        node['checked'] = value ? 'checked' : ''
+      if %w(radio checkbox).include? node['type']
+        trigger(:click)
       elsif tag_name == 'textarea'
         node.innerHTML = value
       else
