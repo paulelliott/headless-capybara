@@ -25,6 +25,14 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
       end
     end
 
+    def select(option)
+      options = all_unfiltered("//option[text()=#{Capybara::XPath.escape(option)}]") ||
+        all_unfiltered("//option[contains(.,#{Capybara::XPath.escape(option)}]")
+     options[0].node.selected = true
+    rescue Exception
+      raise Capybara::OptionNotFound, "Option '#{option}' not found in select '#{node.name}'"
+    end
+
     def tag_name
       node.tagName.downcase
     end
