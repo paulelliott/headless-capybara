@@ -107,7 +107,6 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
 
   def visit(path)
     window.location = rack_url(path)
-    source
   end
 
   def body
@@ -116,7 +115,7 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
   alias :html :body
 
   def source
-    @source ||= body
+    window.document.__original_text__
   end
 
   def current_url
