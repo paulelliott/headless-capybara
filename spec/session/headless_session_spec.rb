@@ -31,7 +31,7 @@ describe Capybara::Session do
         end
 
         it 'sets the value to an empty string' do
-          extract_results(@session)['Name'].should == ''
+          extract_results(@session)['Name'].should be_nil
         end
       end
     end
