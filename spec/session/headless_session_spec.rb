@@ -25,7 +25,6 @@ describe Capybara::Session do
     describe '#fill_in' do
       context 'with a nil value' do
         before do
-          pending
           @session.visit('/form')
           @session.fill_in 'Name', :with => nil
           @session.click_button('awesome')

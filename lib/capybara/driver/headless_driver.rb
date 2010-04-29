@@ -47,6 +47,18 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
       raise Capybara::OptionNotFound, "Option '#{option}' not found in select '#{node.name}'"
     end
 
+    def unselect(option)
+      if node['multiple']
+        options = all_unfiltered(".//option[text()='#{option}']") +
+          all_unfiltered(".//option[contains(.,'#{option}')]")
+        options.each { |option| option.node.selected = false }
+      else
+        raise Capybara::UnselectNotAllowed, "Cannot unselect option '#{option}' from single select box."
+      end
+    rescue Exception
+      raise Capybara::OptionNotFound, "Option '#{option}' not found in select '#{node.name}'"
+    end
+
     def tag_name
       node.tagName.downcase
     end
