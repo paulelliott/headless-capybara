@@ -21,5 +21,21 @@ describe Capybara::Session do
 
     it_should_behave_like "session"
     it_should_behave_like "session with javascript support"
+
+    describe '#fill_in' do
+      context 'with a nil value' do
+        before do
+          pending
+          @session.visit('/form')
+          @session.fill_in 'Name', :with => nil
+          @session.click_button('awesome')
+        end
+
+        it 'sets the value to an empty string' do
+          extract_results(@session)['Name'].should == ''
+        end
+      end
+    end
+
   end
 end
