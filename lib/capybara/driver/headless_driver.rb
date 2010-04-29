@@ -38,7 +38,7 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
     def select(option)
       options = all_unfiltered(".//option[text()='#{option}']") +
         all_unfiltered(".//option[contains(.,'#{option}')]")
-      if node['multiple']
+      if node.multiple
         options.each { |option| option.node.selected = true }
       else
         options.first.node.selected = true
@@ -48,15 +48,17 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
     end
 
     def unselect(option)
-      if node['multiple']
-        options = all_unfiltered(".//option[text()='#{option}']") ||
-          all_unfiltered(".//option[contains(.,'#{option}')]")
-        options.each { |option| option.node.selected = false }
+      if node.multiple
+        begin
+          options = all_unfiltered(".//option[text()='#{option}']") ||
+            all_unfiltered(".//option[contains(.,'#{option}')]")
+          options.each { |option| option.node.selected = false }
+        rescue Exception
+          raise Capybara::OptionNotFound, "Option '#{option}' not found in select '#{node.name}'"
+        end
       else
         raise Capybara::UnselectNotAllowed, "Cannot unselect option '#{option}' from single select box."
       end
-    rescue Exception
-      raise Capybara::OptionNotFound, "Option '#{option}' not found in select '#{node.name}'"
     end
 
     def tag_name
