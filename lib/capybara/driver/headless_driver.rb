@@ -108,6 +108,13 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
     window.document
   end
 
+  def wait?; true; end
+
+  def wait_until(max)
+    fired, wait = *window["Envjs"].wait(-max*1000)
+    raise Capybara::TimeoutError if !fired && wait.nil?
+  end
+
   private
 
   BASE_RUNTIME = Johnson::Runtime.new :size => Integer(ENV["JOHNSON_HEAP_SIZE"] || 0x4000000)
