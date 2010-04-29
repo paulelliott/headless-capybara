@@ -146,6 +146,10 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
     raise Capybara::TimeoutError if !fired && wait.nil?
   end
 
+  def has_shortcircuit_timeout?
+    true
+  end
+
   private
 
   BASE_RUNTIME = Johnson::Runtime.new :size => Integer(ENV["JOHNSON_HEAP_SIZE"] || 0x4000000)
