@@ -11,8 +11,18 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
 
     def [](name)
       name = name.to_s
-      name = 'className' if name == 'class'
-      node[name]
+      case
+      when name == 'class'
+        node['className']
+      when name == 'value'
+        if tag_name == 'select' && node['multiple']
+          all_unfiltered(".//option[@selected]").map { |option| option.node.value }
+        else
+          node.value
+        end
+      else
+        node[name]
+      end
     end
 
     def set(value)
@@ -26,9 +36,13 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
     end
 
     def select(option)
-      options = all_unfiltered("//option[text()=#{Capybara::XPath.escape(option)}]") ||
-        all_unfiltered("//option[contains(.,#{Capybara::XPath.escape(option)}]")
-     options[0].node.selected = true
+      options = all_unfiltered(".//option[text()='#{option}']") +
+        all_unfiltered(".//option[contains(.,'#{option}')]")
+      if node['multiple']
+        options.each { |option| option.node.selected = true }
+      else
+        options.first.node.selected = true
+      end
     rescue Exception
       raise Capybara::OptionNotFound, "Option '#{option}' not found in select '#{node.name}'"
     end
