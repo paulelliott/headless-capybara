@@ -49,7 +49,7 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
 
     def unselect(option)
       if node['multiple']
-        options = all_unfiltered(".//option[text()='#{option}']") +
+        options = all_unfiltered(".//option[text()='#{option}']") ||
           all_unfiltered(".//option[contains(.,'#{option}')]")
         options.each { |option| option.node.selected = false }
       else
