@@ -98,7 +98,7 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
 
   end
 
-  attr_reader :app, :rack_server, :page
+  attr_reader :app, :rack_server
 
   def initialize(app)
     @app = app
@@ -107,7 +107,7 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
   end
 
   def visit(path)
-    window.location = rack_url(path)
+    window.location = rack_server.url(path)
   end
 
   def body
@@ -158,10 +158,6 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
 
   def window
     @window ||= BASE_RUNTIME.evaluate("window.open('about:blank')")
-  end
-
-  def rack_url(path)
-    rack_server.url(path)
   end
 
 end
