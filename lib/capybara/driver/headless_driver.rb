@@ -53,6 +53,7 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
           options = all_unfiltered(".//option[text()='#{option}']") ||
             all_unfiltered(".//option[contains(.,'#{option}')]")
           options.each { |option| option.node.selected = false }
+          raise Exception if options.empty?
         rescue Exception
           raise Capybara::OptionNotFound, "Option '#{option}' not found in select '#{node.name}'"
         end
