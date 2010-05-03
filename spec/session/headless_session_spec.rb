@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Capybara::Session do
   context 'with a headless driver' do
 
-    before(:all) do
+    before do
       @session = Capybara::Session.new(:headless, TestApp)
     end
 
