@@ -140,16 +140,22 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
     window.document
   end
 
-  def wait?; true; end
+  def wait?; true end
 
   def wait_until(max)
     fired, wait = *window["Envjs"].wait(-max*1000)
     raise Capybara::TimeoutError if !fired && wait.nil?
   end
 
-  def has_shortcircuit_timeout?
-    true
+  def has_shortcircuit_timeout?; true end
+
+  class ResponseHeaders < Hash
+    def [] key
+      super[key.downcase]
+    end
   end
+
+  def response_headers; ResponseHeaders.new(document.__headers__) end
 
   private
 
