@@ -21,6 +21,7 @@ describe Capybara::Session do
 
     it_should_behave_like "session"
     it_should_behave_like "session with javascript support"
+    it_should_behave_like "session with headers support"
 
     describe '#fill_in' do
       context 'with a nil value' do
