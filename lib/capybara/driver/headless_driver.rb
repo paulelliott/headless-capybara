@@ -158,11 +158,13 @@ class Capybara::Driver::Headless < Capybara::Driver::Base
 
   private
 
-  BASE_RUNTIME = Johnson::Runtime.new :size => Integer(ENV["JOHNSON_HEAP_SIZE"] || 0x8000000)
-  BASE_RUNTIME.extend(Envjs::Runtime)
+  def runtime
+    @@runtime ||= Johnson::Runtime.new(:size => Integer(ENV["JOHNSON_HEAP_SIZE"] || 0x8000000)).
+      tap { |rt| rt.extend(Envjs::Runtime) }
+  end
 
   def window
-    @window ||= BASE_RUNTIME.evaluate("window.open('about:blank')")
+    @window ||= runtime.evaluate("window.open('about:blank')")
   end
 
 end
